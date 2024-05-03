@@ -5,13 +5,17 @@
       url = "github:nix-community/gomod2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    gitignore = {
+      url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     xc = {
       url = "github:joerdav/xc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, gomod2nix, xc }:
+  outputs = { self, nixpkgs, gomod2nix, gitignore, xc }:
     let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
@@ -30,10 +34,11 @@
       # Build app.
       app = { name, pkgs, system }: gomod2nix.legacyPackages.${system}.buildGoApplication {
         name = name;
-        src = ./.;
+        src = gitignore.lib.gitignoreSource ./.;
         go = pkgs.go_1_21;
         # Must be added due to bug https://github.com/nix-community/gomod2nix/issues/120
         pwd = ./.;
+        subPackages = [ "cmd/${name}" ];
         CGO_ENABLED = 0;
         flags = [
           "-trimpath"
@@ -61,7 +66,7 @@
           pkgs.coreutils
           pkgs.bash
           (dockerUser pkgs)
-          (app pkgs)
+          (app { inherit name pkgs system; })
         ];
         config = {
           Cmd = [ name ];
