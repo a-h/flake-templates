@@ -2,10 +2,14 @@
 
 My standard Nix flake templates.
 
-## Tasks
-
-### init
+### go
 
 ```bash
 nix flake init -t github:a-h/flake-templates#go
+```
+
+### python
+
+```bash
+nix flake init -t github:a-h/flake-templates#python
 ```
