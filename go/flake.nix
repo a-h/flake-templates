@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,7 +35,7 @@
       app = { name, pkgs, system }: gomod2nix.legacyPackages.${system}.buildGoApplication {
         name = name;
         src = gitignore.lib.gitignoreSource ./.;
-        go = pkgs.go_1_21;
+        go = pkgs.go;
         # Must be added due to bug https://github.com/nix-community/gomod2nix/issues/120
         pwd = ./.;
         subPackages = [ "cmd/${name}" ];
@@ -83,7 +83,7 @@
         pkgs.crane
         pkgs.gh
         pkgs.git
-        pkgs.go_1_21
+        pkgs.go
         xc.packages.${system}.xc
         gomod2nix.legacyPackages.${system}.gomod2nix
       ];
