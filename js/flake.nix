@@ -1,10 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
-    dream2nix = {
-      url = "github:nix-community/dream2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     gitignore = {
       url = "github:hercules-ci/gitignore.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -15,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, dream2nix, gitignore, xc, ... }:
+  outputs = { nixpkgs, gitignore, xc, ... }:
     let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
@@ -31,24 +27,18 @@
         };
       });
 
-      app = { name, pkgs, system, ... }:
-        dream2nix.lib.evalModules {
-          packageSets.nixpkgs = pkgs;
-          modules = [
-            ({ config, ... }: import ./default.nix {
-              config = config;
-              # Extra arguments passed to the `default` function.
-              pkgs = pkgs;
-              name = name;
-              dream2nix = dream2nix;
-            })
-            {
-              paths.projectRoot = ./.;
-              paths.projectRootFile = "flake.nix";
-              paths.package = ./.;
-            }
-          ];
+      app = { name, pkgs, system, ... }: pkgs.buildNpmPackage {
+        pname = name;
+        version = "1.0.0";
+
+        src = gitignore.lib.gitignoreSource ./.;
+
+        npmDeps = pkgs.importNpmLock {
+          npmRoot = gitignore.lib.gitignoreSource ./.;
         };
+
+        npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+      };
 
       # Build Docker containers.
       dockerUser = pkgs: pkgs.runCommand "user" { } ''
