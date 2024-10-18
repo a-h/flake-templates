@@ -2,6 +2,10 @@
   description = "Flake templates";
   outputs = { self }: {
     templates = {
+      doc = {
+        path = ./doc;
+        description = "Markdown to PDF pipeline, using pandoc";
+      };
       go = {
         path = ./go;
         description = "Go build using gomod2nix, and building Docker container";
