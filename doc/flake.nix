@@ -37,9 +37,10 @@
 
         npmDepsHash = "sha256-2R5i6xf+71Zl9uxDbtRKj36HTolnj9gsmps/uxF5o+4=";
 
-        buildInputs = [ pkgs.d2 pkgs.makeWrapper pkgs.librsvg ];
+        buildInputs = [ pkgs.d2 pkgs.makeWrapper pkgs.librsvg pkgs.typescript ];
 
         buildPhase = ''
+          export PATH="$PATH:${pkgs.lib.makeBinPath buildInputs}"
           runHook preBuild
 
           npm ci
@@ -73,16 +74,16 @@
             pkgs.findutils
             pkgs.coreutils
             pkgs.pandoc
-            pkgs.tectonic
+            pkgs.texliveSmall
             pkgs.librsvg
             (d2-filter pkgs)
           ];
 
           buildPhase = ''
             export PATH="${pkgs.lib.makeBinPath buildInputs}";
-            export HOME="$TMP" ;
+            export HOME="$TMP";
             mkdir -p $out
-            ${pkgs.pandoc}/bin/pandoc -F d2-filter $src/${name}.md --pdf-engine tectonic \
+            ${pkgs.pandoc}/bin/pandoc -F d2-filter $src/${name}.md \
               -V geometry:a4paper -V geometry:margin=2cm \
               -o $out/${name}.pdf \
               --toc=true
