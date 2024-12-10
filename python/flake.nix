@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     gitignore = {
       url = "github:hercules-ci/gitignore.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -9,13 +9,9 @@
       url = "github:joerdav/xc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, gitignore, xc, poetry2nix }:
+  outputs = { nixpkgs, xc, ... }:
     let
       allSystems = [
         "x86_64-linux" # 64-bit Intel/AMD Linux
@@ -31,13 +27,22 @@
         };
       });
 
-      # Build app.
+      pythonPkgs = pkgs: [
+        pkgs.fastapi
+        pkgs.uvicorn
+      ];
+
+      pythonWithPkgs = pkgs: pkgs.python311.withPackages (pythonPkgs);
+
       app = { name, pkgs, system }:
         let
-          poetry = (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; });
+          python = pythonWithPkgs pkgs;
         in
-        poetry.mkPoetryApplication {
-          projectDir = gitignore.lib.gitignoreSource ./.;
+        python.pkgs.buildPythonApplication {
+          inherit name;
+          buildInputs = [ python ];
+          propagatedBuildInputs = pythonPkgs python.pkgs;
+          src = ./.;
         };
 
       # Build Docker containers.
@@ -73,16 +78,12 @@
 
       # Development tools used.
       devTools = { system, pkgs }:
-        let
-          poetry = (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; });
-        in
         [
           pkgs.crane
           pkgs.gh
           pkgs.git
-          (poetry.mkPoetryEnv { projectDir = ./.; })
           xc.packages.${system}.xc
-          pkgs.poetry # Use this instead of pip / uv etc.
+          (pythonWithPkgs pkgs)
         ];
 
       name = "app";
@@ -97,7 +98,7 @@
       # `nix develop` provides a shell containing required tools.
       devShells = forAllSystems ({ system, pkgs }: {
         default = pkgs.mkShell {
-          buildInputs = (devTools { system = system; pkgs = pkgs; });
+          packages = (devTools { system = system; pkgs = pkgs; });
         };
       });
     };
