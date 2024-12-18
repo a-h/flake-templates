@@ -55,6 +55,9 @@
           # Remove coreutils and bash for a smaller container.
           pkgs.coreutils
           pkgs.bash
+          # CA certificates to access HTTPS sites.
+          pkgs.cacert
+          pkgs.dockerTools.caCertificates
           (dockerUser pkgs)
           (app { inherit name pkgs system; })
         ];
