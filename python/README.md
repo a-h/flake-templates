@@ -14,6 +14,12 @@ nix build
 nix run
 ```
 
+### run-local
+
+```bash
+python3 ./src/app/app.py
+```
+
 ### develop
 
 ```bash
@@ -22,8 +28,10 @@ nix develop
 
 ### requirements-add
 
+After adding new requirements, you will need to reload the Nix shell, e.g. by running `nix develop` again, or exiting the current directory and re-entering it so that direnv can pick up the changes.
+
 ```bash
-poetry add fastapi uvicorn
+uv add fastapi uvicorn
 ```
 
 ### docker-build
