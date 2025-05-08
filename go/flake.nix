@@ -28,6 +28,13 @@
         system = system;
         pkgs = import nixpkgs {
           inherit system;
+          overlays = [
+            (self: super: {
+              # Add xc to nixpkgs.
+              xc = xc.outputs.packages.${system}.xc;
+              gomod2nix = gomod2nix.legacyPackages.${system}.gomod2nix;
+            })
+          ];
         };
       });
 
@@ -82,13 +89,13 @@
       };
 
       # Development tools used.
-      devTools = { system, pkgs }: [
+      devTools = pkgs: [
         pkgs.crane
         pkgs.gh
         pkgs.git
         pkgs.go
-        xc.packages.${system}.xc
-        gomod2nix.legacyPackages.${system}.gomod2nix
+        pkgs.xc
+        pkgs.gomod2nix
       ];
 
       name = "app";
@@ -104,7 +111,7 @@
       # Run `gomod2nix` to update the `gomod2nix.toml` file if Go dependencies change.
       devShells = forAllSystems ({ system, pkgs }: {
         default = pkgs.mkShell {
-          buildInputs = (devTools { system = system; pkgs = pkgs; });
+          buildInputs = (devTools pkgs);
         };
       });
     };
