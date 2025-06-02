@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     xc = {
       url = "github:joerdav/xc";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,8 +35,7 @@
         }
       );
 
-      # Streamlit in nixpkgs was 1.40.1 when the latest version was 1.44.1.
-      # To handle scenarios like this, we can override the src.
+      # If the version in Nixpkgs is old, you can override the src.
       overriddenStreamlit = { pkgs, sl }: sl.overridePythonAttrs (old: rec {
         version = "1.44.1";
         src = pkgs.fetchPypi {
@@ -51,7 +50,8 @@
       # as an example.
 
       pythonDeps = pkgs: ps: [
-        (overriddenStreamlit { inherit pkgs; sl = ps.streamlit; })
+        #(overriddenStreamlit { inherit pkgs; sl = ps.streamlit; })
+        ps.streamlit
         ps.authlib # Required for streamlit auth.
         ps.uvicorn
         ps.fastapi
