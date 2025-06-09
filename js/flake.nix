@@ -73,6 +73,9 @@
 
       # Development tools used.
       devTools = { system, pkgs }: [
+        # Link the node_modules directory to the NPM dependencies.
+        pkgs.importNpmLock.linkNodeModulesHook
+        # Tools used to build the application.
         pkgs.crane
         pkgs.esbuild
         pkgs.gh
@@ -98,6 +101,10 @@
       devShells = forAllSystems ({ system, pkgs }: {
         default = pkgs.mkShell {
           buildInputs = (devTools { system = system; pkgs = pkgs; });
+          npmDeps = pkgs.importNpmLock.buildNodeModules {
+            nodejs = pkgs.nodejs;
+            npmRoot = ./.;
+          };
         };
       });
     };
