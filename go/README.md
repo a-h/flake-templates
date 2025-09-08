@@ -2,12 +2,6 @@
 
 ## Tasks
 
-### gomod2nix-update
-
-```bash
-gomod2nix
-```
-
 ### build
 
 ```bash
