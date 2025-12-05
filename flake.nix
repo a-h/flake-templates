@@ -6,6 +6,10 @@
         path = ./doc;
         description = "Markdown to PDF pipeline, using pandoc";
       };
+      typst = {
+        path = ./typst;
+        description = "Typst document";
+      };
       go = {
         path = ./go;
         description = "Go build using gomod2nix, and building Docker container";
