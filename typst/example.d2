@@ -1,0 +1,45 @@
+direction: right
+
+# Swimlane 1 — Customer
+customer: {
+  shape: rectangle
+  style.fill: "#eef2ff"
+  label: "Customer"
+
+  place_order: "Place order"
+  receive_confirmation: "Receive confirmation"
+  receive_goods: "Receive goods"
+}
+
+# Swimlane 2 — Sales System
+sales: {
+  shape: rectangle
+  style.fill: "#e0f2fe"
+  label: "Sales System"
+
+  validate_order: "Validate order"
+  create_invoice: "Create invoice"
+  send_confirmation: "Send confirmation"
+}
+
+# Swimlane 3 — Warehouse
+warehouse: {
+  shape: rectangle
+  style.fill: "#ecfccb"
+  label: "Warehouse"
+
+  allocate_stock: "Allocate stock"
+  pack_goods: "Pack goods"
+  ship_goods: "Ship goods"
+}
+
+# Flow left → right
+customer.place_order -> sales.validate_order
+sales.validate_order -> warehouse.allocate_stock: "Stock available"
+warehouse.allocate_stock -> warehouse.pack_goods
+warehouse.pack_goods -> warehouse.ship_goods
+warehouse.ship_goods -> sales.create_invoice
+sales.create_invoice -> sales.send_confirmation
+sales.send_confirmation -> customer.receive_confirmation
+customer.receive_confirmation -> customer.receive_goods
+

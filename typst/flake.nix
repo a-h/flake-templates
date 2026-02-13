@@ -25,6 +25,7 @@
         pkgs.xc
         pkgs.mermaid-cli
         pkgs.watchexec
+        pkgs.d2
       ];
     in
     {
